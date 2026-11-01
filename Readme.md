@@ -35,13 +35,21 @@ INSERT INTO orders (user_id, product_name, quantity) VALUES (4, 'Product E', 4);
 
 Назначение компонентов:
 • zookeeper — управляет кластером и следит за его состоянием.
+
 • kafka-0, kafka-1, kafka-2 — брокеры, обеспечивающие запись и чтение сообщений.
+
 • schema-registry — хранит схемы данных.
+
 • postgres — база данных, откуда через встроенный Debezium забираются изменения.
+
 • kafka-ui — веб-интерфейс для просмотра топиков и сообщений.
+
 • kafka-connect — переносит данные из Postgres в Kafka. На нем также стоит агент для сбора метрик.
+
 • prometheus — собирает метрики работы с kafka-connect.
+
 • grafana — визуализирует собранные prometheus метрики.
+
 • consumer-app-orders и consumer-app-users — приложения для вывода переданных из БД данных в кафка в терминал.
 
 Взаимосвязи:
@@ -54,26 +62,47 @@ Kafka-connect связывает всё воедино: он ждет запус
 
 Настройки Debezium Connector располагаются в файле connector.json в директории проекта.
 • "name": "pg-connector" — имя экземпляра коннектора
+
 • "connector.class": "io.debezium.connector.postgresql.PostgresConnector" — полное имя класса коннектора, который мы хотим запустить
+
 • "database.hostname": "postgres" — адрес PostgreSQL сервера
+
 • "database.port": "5432" — номер порта, который слушает PostgreSQL сервер
+
 • "database.user": "postgres-user" — имя юзера для подключения
+
 • "database.password": "postgres-pw" — пароль юзера для подключения
+
 • "database.dbname": "customers" — имя базы данных для подключения
+
 • "database.server.name": "customers" — имя сервера базы данных
+
 • "table.include.list": "public.users, public.orders" — список таблиц для мониторинга
+
 • "transforms": "unwrap" — исключаем метаданные из сообщения
+
 • "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState" — извлекаем из сообщения только измененные данные
+
 • "transforms.unwrap.drop.tombstones": "false" — tombstone-события не будут передаваться дальше в результирующий топик
+
 • "transforms.unwrap.delete.handling.mode": "rewrite" — событие удаления - обычное сообщение с __deleted: true
+
 • "topic.prefix": "customers" — префикс для имени топика, который будет создан для таблиц
+
 • "topic.creation.enable": "true" — разрешает автоматическое создание топиков под таблицы
+
 • "topic.creation.default.replication.factor": "-1" — установить в качестве фактора репликации под создаваемый топик дефолтный для kafka
+
 • "topic.creation.default.partitions": "-1" — установить в качестве количества партиций под создаваемый топик дефолтный для kafka
+
 • "skipped.operations": "none" — нет фильтрации событий
+
 • "key.converter": "org.apache.kafka.connect.json.JsonConverter" — класс для сериализации/десериализации ключа
+
 • "key.converter.schemas.enable": "false" — без служебных полей kafka connect
+
 • "value.converter": "org.apache.kafka.connect.json.JsonConverter" — класс для сериализации/десериализации значения
+
 • "value.converter.schemas.enable": "false" — без служебных полей kafka connect
 
    
