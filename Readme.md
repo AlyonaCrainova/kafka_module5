@@ -34,6 +34,7 @@ INSERT INTO orders (user_id, product_name, quantity) VALUES (4, 'Product E', 4);
 7. В терминал приложений в Docker desktop вывелись вставленные данные + сгенерированные поля.
 
 Назначение компонентов:
+
 • zookeeper — управляет кластером и следит за его состоянием.
 
 • kafka-0, kafka-1, kafka-2 — брокеры, обеспечивающие запись и чтение сообщений.
@@ -52,15 +53,22 @@ INSERT INTO orders (user_id, product_name, quantity) VALUES (4, 'Product E', 4);
 
 • consumer-app-orders и consumer-app-users — приложения для вывода переданных из БД данных в кафка в терминал.
 
+
 Взаимосвязи:
 
 Все сервисы сидят в одной сети proxynet и общаются друг с другом.
+
 Сначала запускается Zookeeper, а за ним три брокера Kafka, которые к нему подключаются. Schema-registry и Kafka-UI работают напрямую с кластером Kafka.
+
 Kafka-connect связывает всё воедино: он ждет запуска базы Postgres и Kafka, забирает данные из базы, сверяет их со схемами в Schema-registry и отправляет в топики.
+
 Затем Prometheus стучится в Kafka-connect и забирает метрики, а Grafana подключается к Prometheus, чтобы показать их на графиках.
+
 В самом конце, когда брокеры Kafka полностью поднялись и прошли проверку (healthcheck), запускаются приложения consumer-app-orders и consumer-app-users, которые начинают читать свои топики.
 
+
 Настройки Debezium Connector располагаются в файле connector.json в директории проекта.
+
 • "name": "pg-connector" — имя экземпляра коннектора
 
 • "connector.class": "io.debezium.connector.postgresql.PostgresConnector" — полное имя класса коннектора, который мы хотим запустить
